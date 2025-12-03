@@ -246,6 +246,12 @@
             <h2 id="resWord" style="margin: 10px 0; color: #2d3436;">WORD</h2>
             <div id="resThai" style="font-size: 1.4rem; color: #636e72; font-family: 'Kanit';">คำแปล</div>
             <div class="result-stats">Time: <span id="resTime">00:00</span></div>
+            
+            <!-- เพิ่มปุ่ม Listen สำหรับกดฟังเองถ้าระบบไม่อ่านอัตโนมัติ -->
+            <button class="btn" style="background:#ffeaa7; color:#d63031; margin-bottom: 5px;" onclick="speakCurrentWord()">
+                <i class="fa-solid fa-volume-high"></i> Listen
+            </button>
+            
             <button class="btn" onclick="nextWord()">Next Word <i class="fa-solid fa-arrow-right"></i></button>
         </div>
     </div>
@@ -355,6 +361,9 @@
         }
 
         function openMap(size) {
+            // Mobile audio unlock
+            unlockAudio();
+
             currentGridSize = size;
             document.getElementById('modeName').innerText = (size===3) ? "3x3 Mode" : "4x4 Mode";
             document.documentElement.style.setProperty('--tile-count', currentGridSize);
@@ -625,6 +634,11 @@
             }
         }
 
+        function speakCurrentWord() {
+            let wd = stageWords[currentWordIndex];
+            if(wd) speak(wd.w);
+        }
+
         function showStageSummary() {
             const list = document.getElementById('summaryList');
             list.innerHTML = '';
@@ -667,10 +681,22 @@
         }
         function stopTimer() { clearInterval(timerInterval); }
         function pad(n) { return n<10?'0'+n:n; }
+        
+        // Fix for mobile: Cancel before speak
         function speak(txt) {
+            window.speechSynthesis.cancel();
             let u = new SpeechSynthesisUtterance(txt);
             u.lang = 'en-US';
-            speechSynthesis.speak(u);
+            u.rate = 0.8;
+            window.speechSynthesis.speak(u);
+        }
+
+        // Mobile audio unlock logic
+        function unlockAudio() {
+            if('speechSynthesis' in window) {
+                let u = new SpeechSynthesisUtterance("");
+                window.speechSynthesis.speak(u);
+            }
         }
 
     </script>
