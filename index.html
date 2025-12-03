@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vocab Slide V2.5 - Final</title>
+    <title>Vocab Slide Puzzle</title>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Kanit:wght@300;500&display=swap" rel="stylesheet">
     
     <style>
@@ -29,18 +31,35 @@
             overflow: hidden;
             color: white;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- Global Title --- */
+        /* --- 1. Title & Secret Mode Animation --- */
         .app-title {
             font-size: 2rem;
             margin-top: 20px;
             margin-bottom: 10px;
             text-shadow: 0 4px 6px rgba(0,0,0,0.2);
             z-index: 10;
+            cursor: pointer;
+            transition: transform 0.3s;
         }
 
-        /* --- Screen Management --- */
+        /* เอฟเฟคหัวใจเต้น เมื่อเปิดโหมดลับ */
+        .app-title.active-bot {
+            animation: heartbeat 1.5s infinite ease-in-out;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.1); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.1); }
+            60% { transform: scale(1); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- Screen Logic --- */
         .screen {
             display: none;
             flex-direction: column;
@@ -49,16 +68,10 @@
             height: 100%;
             animation: fadeIn 0.5s ease;
         }
-        .screen.active {
-            display: flex;
-        }
+        .screen.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- Menu Styles --- */
+        /* --- Menu --- */
         .menu-container {
             display: flex;
             flex-direction: column;
@@ -67,7 +80,6 @@
             width: 80%;
             max-width: 300px;
         }
-
         .menu-btn {
             background: rgba(255, 255, 255, 0.2);
             border: 2px solid rgba(255,255,255,0.4);
@@ -84,41 +96,11 @@
         }
         .menu-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.02); }
 
-        /* --- Game Styles --- */
-        .top-bar {
-            width: min(90vw, 400px);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .stats-bar {
-            width: min(90vw, 400px);
-            background: rgba(0,0,0,0.2);
-            padding: 8px 15px;
-            border-radius: 50px;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            box-sizing: border-box;
-        }
-
-        .preview-box {
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-            font-size: 24px;
-            border: 2px solid rgba(255,255,255,0.5);
-            transition: color 0.3s;
-        }
-
+        /* --- Game Board --- */
+        .top-bar { width: min(90vw, 400px); display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .stats-bar { width: min(90vw, 400px); background: rgba(0,0,0,0.2); padding: 8px 15px; border-radius: 50px; display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.9rem; box-sizing: border-box; }
+        .preview-box { width: 50px; height: 50px; background: rgba(255, 255, 255, 0.9); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 24px; border: 2px solid rgba(255,255,255,0.5); transition: color 0.3s; }
+        
         .game-board {
             width: var(--board-current-width);
             height: var(--board-current-width);
@@ -147,9 +129,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: transform 0.1s;
         }
         .tile.empty { background: transparent; cursor: default; border: 2px dashed rgba(255,255,255,0.2); }
-
+        
         .tile-content {
             position: absolute;
             font-size: calc(min(90vw, 400px) * 0.75);
@@ -164,21 +147,15 @@
             transition: color 0.3s;
         }
 
-        /* --- Controls (1.5x Size) --- */
-        .controls {
-            margin-top: 20px;
-            display: flex;
-            gap: 20px; /* เพิ่มระยะห่างเพราะปุ่มใหญ่ขึ้น */
-        }
+        /* --- Large Controls (1.5x) --- */
+        .controls { margin-top: 20px; display: flex; gap: 20px; }
         .btn-ctrl {
             border: none;
-            /* เดิม 45px -> คูณ 1.5 = 68px */
-            width: 68px;
+            width: 68px; /* 1.5x size */
             height: 68px;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            /* เดิม 1.1rem -> คูณ 1.5 = 1.65rem */
-            font-size: 1.65rem; 
+            font-size: 1.65rem;
             cursor: pointer;
             box-shadow: 0 6px 10px rgba(0,0,0,0.3);
             transition: transform 0.1s;
@@ -204,10 +181,7 @@
             border-radius: 20px; text-align: center; width: 75%; max-width: 320px;
             animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .result-stats {
-            background: #f1f2f6; border-radius: 10px;
-            padding: 10px; margin: 15px 0; font-size: 0.9rem; color: #636e72;
-        }
+        .result-stats { background: #f1f2f6; border-radius: 10px; padding: 10px; margin: 15px 0; font-size: 0.9rem; color: #636e72; }
         
         .btn {
             background: var(--primary); color: white; border: none;
@@ -215,43 +189,53 @@
             cursor: pointer; margin-top: 10px; width: 100%;
             font-family: 'Fredoka', sans-serif;
         }
-        
-        @keyframes popIn {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+
+        /* --- Bot Indicator (Optional: small text) --- */
+        .bot-status {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(255,0,0,0.2); padding: 5px 10px;
+            border-radius: 20px; font-size: 0.7rem; 
+            display: none; animation: fadeIn 0.5s;
         }
+
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <h1 class="app-title"><i class="fa-solid fa-puzzle-piece"></i> Vocab Slide</h1>
+    <!-- 1. Title with Double Tap Handler -->
+    <h1 class="app-title" id="appTitle"><i class="fa-solid fa-puzzle-piece"></i> Vocab Slide Puzzle</h1>
+    <div id="botStatus" class="bot-status"><i class="fa-solid fa-robot"></i> AUTO</div>
 
+    <!-- MENU SCREEN -->
     <div id="screen-menu" class="screen active">
         <div style="text-align: center; margin-top: 20px; opacity: 0.8;">Select Difficulty</div>
         <div class="menu-container">
             <button class="menu-btn" onclick="initGameSession(3)">
                 <div>
                     <div style="font-weight: bold;">Easy (3x3)</div>
-                    <small style="opacity: 0.8;">10 Stages</small>
+                    <small style="opacity: 0.8;">Standard Mode</small>
                 </div>
                 <i class="fa-solid fa-star"></i>
             </button>
-            
             <button class="menu-btn" onclick="initGameSession(4)">
                 <div>
                     <div style="font-weight: bold;">Hard (4x4)</div>
-                    <small style="opacity: 0.8;">10 Stages</small>
+                    <small style="opacity: 0.8;">Challenge Mode</small>
                 </div>
                 <i class="fa-solid fa-fire"></i>
             </button>
         </div>
-        <div style="margin-top: auto; margin-bottom: 20px; font-size: 0.8rem; opacity: 0.5;">V2.5 Final</div>
+        <div style="text-align: center; margin-top: auto; margin-bottom: 20px; opacity: 0.5; font-size: 0.8rem;">
+            Double tap title to toggle Secret Bot
+        </div>
     </div>
 
+    <!-- GAME SCREEN -->
     <div id="screen-game" class="screen">
         <div class="top-bar">
             <div>
-                <span style="opacity: 0.7; font-size: 0.9rem;">Stage <span id="displayStage">1</span>/10</span>
+                <span style="opacity: 0.7; font-size: 0.9rem;">Stage <span id="displayStage">1</span></span>
                 <div style="font-weight: bold;" id="modeName">3x3 Mode</div>
             </div>
             <div class="preview-box">
@@ -265,25 +249,25 @@
         </div>
 
         <div class="game-board" id="board">
-            </div>
+            <!-- Tiles Generated Here -->
+        </div>
 
         <div class="controls">
             <button class="btn-ctrl btn-home" onclick="goHome()" title="Home"><i class="fa-solid fa-house"></i></button>
-            <button class="btn-ctrl btn-reset" onclick="resetLevel()" title="Re-Shuffle"><i class="fa-solid fa-rotate-right"></i></button>
-            <button class="btn-ctrl btn-solve" onclick="autoSolve()" title="Auto Solve"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+            <button class="btn-ctrl btn-reset" onclick="resetLevel()" title="Reset"><i class="fa-solid fa-rotate-right"></i></button>
+            <button class="btn-ctrl btn-solve" onclick="triggerSmartSolve()" title="Help"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
         </div>
     </div>
 
+    <!-- RESULT OVERLAY -->
     <div class="overlay" id="overlay">
         <div class="result-card">
             <i id="resultIcon" class="fa-solid fa-star" style="font-size: 60px; color: var(--primary);"></i>
             <h2 id="resultWord" style="margin: 10px 0; color: #2d3436;">WORD</h2>
             <div id="resultThai" style="font-size: 1.4rem; color: #636e72; font-family: 'Kanit';">คำแปล</div>
-            
             <div class="result-stats">
                 Time: <span id="resTime">00:00</span> | Moves: <span id="resMoves">0</span>
             </div>
-            
             <button class="btn" style="background:#ffeaa7; color:#d63031;" onclick="speakWord()">
                 <i class="fa-solid fa-volume-high"></i> Listen
             </button>
@@ -292,94 +276,96 @@
     </div>
 
     <script>
-        // --- 1. Massive Word Database (60+ Words) ---
-        // เพิ่มคำศัพท์ให้หลากหลายและเยอะขึ้น
+        // --- 1. Word Database ---
         const fullDatabase = [
-            // Animals
             { word: "Cat", thai: "แมว", icon: "fa-cat", color: "#e17055" },
             { word: "Dog", thai: "สุนัข", icon: "fa-dog", color: "#6c5ce7" },
             { word: "Fish", thai: "ปลา", icon: "fa-fish", color: "#0984e3" },
             { word: "Bird", thai: "นก", icon: "fa-dove", color: "#00b894" },
-            { word: "Spider", thai: "แมงมุม", icon: "fa-spider", color: "#2d3436" },
-            { word: "Horse", thai: "ม้า", icon: "fa-horse", color: "#fdcb6e" },
-            { word: "Frog", thai: "กบ", icon: "fa-frog", color: "#00cec9" },
+            { word: "Rocket", thai: "จรวด", icon: "fa-rocket", color: "#a29bfe" },
             { word: "Dragon", thai: "มังกร", icon: "fa-dragon", color: "#d63031" },
-            { word: "Ghost", thai: "ผี", icon: "fa-ghost", color: "#636e72" },
-            { word: "Crow", thai: "อีกา", icon: "fa-crow", color: "#2d3436" },
-            { word: "Hippo", thai: "ฮิปโป", icon: "fa-hippo", color: "#fd79a8" },
-            { word: "Otter", thai: "นาก", icon: "fa-otter", color: "#e67e22" },
-            { word: "Locust", thai: "ตั๊กแตน", icon: "fa-locust", color: "#badc58" },
-            { word: "Mosquito", thai: "ยุง", icon: "fa-mosquito", color: "#eb4d4b" },
-
-            // Objects & Tools
-            { word: "Camera", thai: "กล้อง", icon: "fa-camera", color: "#6c5ce7" },
-            { word: "Book", thai: "หนังสือ", icon: "fa-book", color: "#0984e3" },
-            { word: "Pen", thai: "ปากกา", icon: "fa-pen", color: "#00b894" },
-            { word: "Bell", thai: "ระฆัง", icon: "fa-bell", color: "#f1c40f" },
-            { word: "Bomb", thai: "ระเบิด", icon: "fa-bomb", color: "#2c3e50" },
-            { word: "Gift", thai: "ของขวัญ", icon: "fa-gift", color: "#e84393" },
-            { word: "Key", thai: "กุญแจ", icon: "fa-key", color: "#f39c12" },
-            { word: "Lock", thai: "แม่กุญแจ", icon: "fa-lock", color: "#e74c3c" },
-            { word: "Umbrella", thai: "ร่ม", icon: "fa-umbrella", color: "#9b59b6" },
-            { word: "Anchor", thai: "สมอเรือ", icon: "fa-anchor", color: "#34495e" },
-
-            // Vehicles
             { word: "Car", thai: "รถยนต์", icon: "fa-car", color: "#ff7675" },
             { word: "Bicycle", thai: "จักรยาน", icon: "fa-bicycle", color: "#55efc4" },
-            { word: "Plane", thai: "เครื่องบิน", icon: "fa-plane", color: "#74b9ff" },
-            { word: "Rocket", thai: "จรวด", icon: "fa-rocket", color: "#a29bfe" },
-            { word: "Ship", thai: "เรือ", icon: "fa-ship", color: "#81ecec" },
-            { word: "Bus", thai: "รถบัส", icon: "fa-bus", color: "#f1c40f" },
-            { word: "Truck", thai: "รถบรรทุก", icon: "fa-truck", color: "#e67e22" },
-            { word: "Motorcycle", thai: "มอเตอร์ไซค์", icon: "fa-motorcycle", color: "#d35400" },
-            { word: "Tractor", thai: "รถแทรกเตอร์", icon: "fa-tractor", color: "#27ae60" },
-            { word: "Wheelchair", thai: "วีลแชร์", icon: "fa-wheelchair", color: "#2980b9" },
-
-            // Food
+            { word: "Tree", thai: "ต้นไม้", icon: "fa-tree", color: "#27ae60" },
+            { word: "Ghost", thai: "ผี", icon: "fa-ghost", color: "#636e72" },
             { word: "Burger", thai: "เบอร์เกอร์", icon: "fa-burger", color: "#e67e22" },
             { word: "Pizza", thai: "พิซซ่า", icon: "fa-pizza-slice", color: "#e74c3c" },
-            { word: "Ice Cream", thai: "ไอศกรีม", icon: "fa-ice-cream", color: "#fd79a8" },
-            { word: "Hotdog", thai: "ฮอทดอก", icon: "fa-hotdog", color: "#d35400" },
             { word: "Apple", thai: "แอปเปิ้ล", icon: "fa-apple-whole", color: "#e74c3c" },
-            { word: "Lemon", thai: "มะนาว", icon: "fa-lemon", color: "#f1c40f" },
-            { word: "Pepper", thai: "พริก", icon: "fa-pepper-hot", color: "#c0392b" },
-            { word: "Carrot", thai: "แครอท", icon: "fa-carrot", color: "#e67e22" },
-            
-            // Nature & Misc
-            { word: "Tree", thai: "ต้นไม้", icon: "fa-tree", color: "#27ae60" },
-            { word: "Fire", thai: "ไฟ", icon: "fa-fire", color: "#e74c3c" },
-            { word: "Water", thai: "น้ำ", icon: "fa-water", color: "#3498db" },
+            { word: "Camera", thai: "กล้อง", icon: "fa-camera", color: "#6c5ce7" },
+            { word: "Robot", thai: "หุ่นยนต์", icon: "fa-robot", color: "#95a5a6" },
             { word: "Sun", thai: "พระอาทิตย์", icon: "fa-sun", color: "#f39c12" },
             { word: "Moon", thai: "พระจันทร์", icon: "fa-moon", color: "#f1c40f" },
-            { word: "Cloud", thai: "เมฆ", icon: "fa-cloud", color: "#ecf0f1" },
-            { word: "Bolt", thai: "สายฟ้า", icon: "fa-bolt", color: "#f1c40f" },
-            { word: "Snowman", thai: "ตุ๊กตาหิมะ", icon: "fa-snowman", color: "#dfe6e9" },
             { word: "Heart", thai: "หัวใจ", icon: "fa-heart", color: "#d63031" },
-            { word: "Star", thai: "ดาว", icon: "fa-star", color: "#f1c40f" },
-            { word: "Robot", thai: "หุ่นยนต์", icon: "fa-robot", color: "#95a5a6" },
-            { word: "Music", thai: "ดนตรี", icon: "fa-music", color: "#9b59b6" },
-            { word: "Game", thai: "เกม", icon: "fa-gamepad", color: "#34495e" }
+            { word: "Umbrella", thai: "ร่ม", icon: "fa-umbrella", color: "#9b59b6" },
+            { word: "Key", thai: "กุญแจ", icon: "fa-key", color: "#f39c12" }
         ];
 
-        // --- Game Logic Variables ---
-        let gameWords = []; // Array สำหรับเก็บคำที่สุ่มมาแล้ว
+        // --- 2. Core Variables ---
+        let gameWords = [];
         let currentStage = 0;
         let gridSize = 3;
         let emptyPos = { r: 0, c: 0 };
-        let isSolving = false; // ใช้ล็อคการกดทั้งตอนเฉลย และตอน Preview เริ่มเกม
+        let isSolving = false; // Prevents interaction during shuffle/solve
         let moves = 0;
         let seconds = 0;
         let timerInterval = null;
         let currentWordData = {};
+        
+        // ** Stack for Smart Solving **
+        let moveHistory = []; 
 
-        // DOM
+        // ** SECRET AUTO BOT VARIABLES **
+        let isAutoPlaying = false; // Bot Status
+
+        // DOM Elements
         const board = document.getElementById('board');
         const overlay = document.getElementById('overlay');
         const previewIcon = document.getElementById('previewIcon');
         const timeEl = document.getElementById('timer');
         const movesEl = document.getElementById('moveCount');
+        const titleEl = document.getElementById('appTitle');
 
-        // --- Navigation ---
+        // --- 3. Secret Bot Toggle Logic ---
+        let lastTap = 0;
+        
+        // Support both Double Click (PC) and Double Tap (Mobile)
+        titleEl.addEventListener('click', handleTitleTap);
+        titleEl.addEventListener('touchend', (e) => {
+            // e.preventDefault(); // Optional: prevent zoom
+            handleTitleTap(e);
+        });
+
+        function handleTitleTap(e) {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            
+            // Detect Double Tap (< 500ms)
+            if (tapLength < 500 && tapLength > 0) {
+                toggleSecretBot();
+            }
+            lastTap = currentTime;
+        }
+
+        function toggleSecretBot() {
+            isAutoPlaying = !isAutoPlaying;
+            
+            if (isAutoPlaying) {
+                // Activate
+                titleEl.classList.add('active-bot');
+                document.getElementById('botStatus').style.display = 'block';
+                
+                // If we are already in game and idle, start solving
+                if (document.getElementById('screen-game').classList.contains('active') && !isSolving) {
+                    triggerSmartSolve();
+                }
+            } else {
+                // Deactivate
+                titleEl.classList.remove('active-bot');
+                document.getElementById('botStatus').style.display = 'none';
+            }
+        }
+
+        // --- 4. Navigation ---
         function switchScreen(screenName) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(`screen-${screenName}`).classList.add('active');
@@ -390,22 +376,19 @@
             switchScreen('menu');
         }
 
-        // --- Start Session (Randomize Words) ---
         function initGameSession(size) {
             gridSize = size;
             document.documentElement.style.setProperty('--tile-count', gridSize);
             document.getElementById('modeName').innerText = (size === 3) ? "3x3 Mode" : "4x4 Mode";
 
-            // 1. สุ่มลำดับคำศัพท์ใหม่ทุกครั้งที่เริ่ม Session (Shuffle)
-            gameWords = [...fullDatabase]; // Copy array
-            shuffleArray(gameWords); // สลับตำแหน่งมั่ว
+            gameWords = [...fullDatabase];
+            shuffleArray(gameWords); 
 
             currentStage = 0;
             switchScreen('game');
             loadLevel();
         }
 
-        // Fisher-Yates Shuffle Algorithm
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -413,15 +396,12 @@
             }
         }
 
-        // --- Level Loading (Preview -> Shuffle) ---
+        // --- 5. Level Loading & Logic ---
         function loadLevel() {
             stopTimer();
-            isSolving = true; // ล็อคไม่ให้กดระหว่าง Preview
+            isSolving = true; 
 
-            // เลือกคำจากลำดับที่สุ่มไว้
             currentWordData = gameWords[currentStage % gameWords.length];
-
-            // Update UI
             document.getElementById('displayStage').innerText = currentStage + 1;
             document.documentElement.style.setProperty('--primary', currentWordData.color);
             previewIcon.className = `fa-solid ${currentWordData.icon}`;
@@ -430,20 +410,27 @@
             seconds = 0;
             updateStatsUI();
 
-            // 1. สร้างบอร์ดแบบ "เรียงเสร็จแล้ว" ให้ดูก่อน
-            createBoard(currentWordData.icon, true); // true = เรียงเสร็จแล้ว
+            createBoard(currentWordData.icon); 
+            moveHistory = []; // Reset history for new level
 
-            // 2. หน่วงเวลา 1 วินาที (Preview) แล้วค่อยสับภาพ
-            setTimeout(() => {
-                shuffleBoard(gridSize === 3 ? 60 : 100);
+            // Start Sequence: Preview -> Shuffle -> Play/Auto
+            setTimeout(async () => {
+                let shuffleSteps = gridSize === 3 ? 30 : 60;
+                await performSmartShuffle(shuffleSteps);
+                
                 startTimer();
-                isSolving = false; // ปลดล็อคให้เล่นได้หลังจากสับเสร็จ (ในฟังก์ชัน shuffleBoard จะปลดล็อคให้เองเมื่ออนิเมชันจบ แต่เพื่อความชัวร์ใส่ใน logic shuffle)
-            }, 1000);
+                isSolving = false; 
+
+                // *** AUTO BOT TRIGGER ***
+                if (isAutoPlaying) {
+                    // Wait a moment then start solving
+                    setTimeout(triggerSmartSolve, 1000);
+                }
+            }, 1000); // 1s Preview
         }
 
         function resetLevel() {
             if(isSolving) return;
-            // รีเซ็ตด่านเดิม สุ่มใหม่
             loadLevel(); 
         }
 
@@ -475,7 +462,7 @@
             div.dataset.r = row;
             div.dataset.c = col;
             div.dataset.original = originalIndex;
-            div.onclick = () => { if(!isSolving) moveTile(div); };
+            div.onclick = () => { if(!isSolving) handleUserClick(div); };
 
             let content = document.createElement('div');
             content.className = 'tile-content';
@@ -495,27 +482,72 @@
             return div;
         }
 
-        function moveTile(clickedDiv) {
-            let r = parseInt(clickedDiv.dataset.r);
-            let c = parseInt(clickedDiv.dataset.c);
+        // --- 6. Shuffle Logic (Generates Solvable Puzzle) ---
+        async function performSmartShuffle(steps) {
+            let lastMovedTile = null;
+
+            for(let i=0; i<steps; i++) {
+                let neighbors = getMovableNeighbors();
+                let validNeighbors = neighbors.filter(n => n !== lastMovedTile);
+                if(validNeighbors.length === 0) validNeighbors = neighbors;
+
+                let randomTile = validNeighbors[Math.floor(Math.random() * validNeighbors.length)];
+                
+                swapTileLogic(randomTile); // Record this move to stack
+                lastMovedTile = randomTile;
+                
+                // Fast shuffle visual
+                await new Promise(r => setTimeout(r, 20)); 
+            }
+        }
+
+        function getMovableNeighbors() {
+            let neighbors = [];
+            let { r, c } = emptyPos;
+            const candidates = [{ r: r-1, c: c }, { r: r+1, c: c }, { r: r, c: c-1 }, { r: r, c: c+1 }];
+            candidates.forEach(pos => {
+                if(pos.r >= 0 && pos.r < gridSize && pos.c >= 0 && pos.c < gridSize) {
+                    let tile = document.querySelector(`.tile[data-r='${pos.r}'][data-c='${pos.c}']`);
+                    if(tile) neighbors.push(tile);
+                }
+            });
+            return neighbors;
+        }
+
+        // --- 7. Movement & History Logic ---
+        function handleUserClick(tile) {
+            let r = parseInt(tile.dataset.r);
+            let c = parseInt(tile.dataset.c);
             let dr = Math.abs(r - emptyPos.r);
             let dc = Math.abs(c - emptyPos.c);
 
             if (dr + dc === 1) {
-                let emptyDiv = document.querySelector(`.tile.empty`);
-                swapNodes(clickedDiv, emptyDiv);
-
-                clickedDiv.dataset.r = emptyPos.r;
-                clickedDiv.dataset.c = emptyPos.c;
-                emptyDiv.dataset.r = r;
-                emptyDiv.dataset.c = c;
-
-                emptyPos = { r: r, c: c };
+                swapTileLogic(tile); 
                 moves++;
                 updateStatsUI();
-
-                if(!isSolving) checkWin();
+                checkWin();
             }
+        }
+
+        function swapTileLogic(clickedDiv) {
+            let emptyDiv = document.querySelector(`.tile.empty`);
+            
+            // Push to stack for Backtracking/Solving
+            moveHistory.push(clickedDiv);
+
+            swapNodes(clickedDiv, emptyDiv);
+
+            let clickedR = parseInt(clickedDiv.dataset.r);
+            let clickedC = parseInt(clickedDiv.dataset.c);
+            let emptyR = parseInt(emptyDiv.dataset.r);
+            let emptyC = parseInt(emptyDiv.dataset.c);
+
+            clickedDiv.dataset.r = emptyR;
+            clickedDiv.dataset.c = emptyC;
+            emptyDiv.dataset.r = clickedR;
+            emptyDiv.dataset.c = clickedC;
+
+            emptyPos = { r: clickedR, c: clickedC };
         }
 
         function swapNodes(n1, n2) {
@@ -531,6 +563,119 @@
             }
         }
 
+        // --- 8. Auto Play (Bot) Logic ---
+        
+        function triggerSmartSolve() {
+            smartSolve();
+        }
+
+        async function smartSolve() {
+            if(isSolving) return;
+            isSolving = true;
+            stopTimer();
+
+            // Reverse Walk logic
+            while(moveHistory.length > 0) {
+                let tileToUndo = moveHistory.pop(); // Get last moved tile
+                
+                // Verify proximity (safety check)
+                let r = parseInt(tileToUndo.dataset.r);
+                let c = parseInt(tileToUndo.dataset.c);
+                let dr = Math.abs(r - emptyPos.r);
+                let dc = Math.abs(c - emptyPos.c);
+
+                if(dr + dc === 1) {
+                    // Visual Swap
+                    let emptyDiv = document.querySelector(`.tile.empty`);
+                    swapNodes(tileToUndo, emptyDiv);
+
+                    // Update Data
+                    let tempR = tileToUndo.dataset.r;
+                    let tempC = tileToUndo.dataset.c;
+                    tileToUndo.dataset.r = emptyDiv.dataset.r;
+                    tileToUndo.dataset.c = emptyDiv.dataset.c;
+                    emptyDiv.dataset.r = tempR;
+                    emptyDiv.dataset.c = tempC;
+                    
+                    emptyPos = { r: parseInt(tempR), c: parseInt(tempC) };
+
+                    // Update UI (Fake user stats)
+                    if (isAutoPlaying) {
+                        moves++;
+                        updateStatsUI();
+                    }
+
+                    // ** Human-like Delay **
+                    // Random delay between 300ms to 600ms
+                    let delay = Math.floor(Math.random() * 300) + 300;
+                    await new Promise(r => setTimeout(r, delay));
+                }
+            }
+
+            // Finish
+            setTimeout(() => {
+                showWin(isAutoPlaying); // If auto playing, treat as bot win
+                isSolving = false;
+            }, 500);
+        }
+
+        // --- 9. Win & Loop Logic ---
+        function checkWin() {
+            let tilesDOM = document.querySelectorAll('.tile:not(.empty)');
+            let correctCount = 0;
+            tilesDOM.forEach(tile => {
+                let currentPos = parseInt(tile.dataset.r) * gridSize + parseInt(tile.dataset.c);
+                let originalPos = parseInt(tile.dataset.original);
+                if(currentPos === originalPos) correctCount++;
+            });
+
+            if (correctCount === (gridSize*gridSize - 1)) {
+                stopTimer();
+                isSolving = true;
+                setTimeout(() => showWin(false), 500);
+            }
+        }
+
+        function showWin(isBotWin) {
+            document.getElementById('resultWord').innerText = currentWordData.word.toUpperCase();
+            document.getElementById('resultThai').innerText = currentWordData.thai;
+            document.getElementById('resultIcon').className = `fa-solid ${currentWordData.icon}`;
+            document.documentElement.style.setProperty('--primary', currentWordData.color);
+
+            let m = Math.floor(seconds / 60);
+            let s = seconds % 60;
+            document.getElementById('resTime').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.getElementById('resMoves').innerText = moves;
+
+            if(!isBotWin) speakWord();
+            
+            overlay.classList.add('show');
+
+            // *** AUTO BOT LOOP ***
+            if (isAutoPlaying) {
+                // Read word (optional for bot)
+                speakWord();
+                // Wait 4 seconds then go next
+                setTimeout(() => {
+                    // Check if bot was turned off during wait
+                    if(isAutoPlaying) nextLevel();
+                }, 4000);
+            }
+        }
+
+        function speakWord() {
+            let utterance = new SpeechSynthesisUtterance(currentWordData.word);
+            utterance.lang = 'en-US';
+            speechSynthesis.speak(utterance);
+        }
+
+        function nextLevel() {
+            overlay.classList.remove('show');
+            currentStage++;
+            loadLevel();
+        }
+
+        // --- Standard UI ---
         function startTimer() {
             stopTimer();
             timerInterval = setInterval(() => {
@@ -546,107 +691,8 @@
         function updateStatsUI() {
             let m = Math.floor(seconds / 60);
             let s = seconds % 60;
-            let timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            timeEl.innerText = timeStr;
+            timeEl.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
             movesEl.innerText = moves;
-        }
-
-        function autoSolve() {
-            if(isSolving) return;
-            isSolving = true;
-            stopTimer();
-
-            const tiles = Array.from(document.querySelectorAll('.tile'));
-            tiles.sort((a, b) => {
-                let valA = a.classList.contains('empty') ? 999 : parseInt(a.dataset.original);
-                let valB = b.classList.contains('empty') ? 999 : parseInt(b.dataset.original);
-                return valA - valB;
-            });
-
-            board.innerHTML = '';
-            tiles.forEach((tile, index) => {
-                let r = Math.floor(index / gridSize);
-                let c = index % gridSize;
-                tile.dataset.r = r;
-                tile.dataset.c = c;
-                board.appendChild(tile);
-            });
-            emptyPos = { r: gridSize-1, c: gridSize-1 };
-
-            // เฉลยเสร็จ รอ 0.5 วิเหมือนกัน
-            setTimeout(() => {
-                showWin(true);
-                isSolving = false;
-            }, 500);
-        }
-
-        function shuffleBoard(movesCount) {
-            isSolving = true; // ล็อคระหว่างสับ
-            let count = 0;
-            let interval = setInterval(() => {
-                let neighbors = [];
-                if (emptyPos.r > 0) neighbors.push({r: emptyPos.r-1, c: emptyPos.c});
-                if (emptyPos.r < gridSize-1) neighbors.push({r: emptyPos.r+1, c: emptyPos.c});
-                if (emptyPos.c > 0) neighbors.push({r: emptyPos.r, c: emptyPos.c-1});
-                if (emptyPos.c < gridSize-1) neighbors.push({r: emptyPos.r, c: emptyPos.c+1});
-
-                let rand = neighbors[Math.floor(Math.random() * neighbors.length)];
-                let target = document.querySelector(`.tile[data-r='${rand.r}'][data-c='${rand.c}']`);
-                if(target) target.click();
-
-                count++;
-                if(count >= movesCount) {
-                    clearInterval(interval);
-                    moves = 0;
-                    updateStatsUI();
-                    isSolving = false; // ปลดล็อค
-                }
-            }, 10);
-        }
-
-        function checkWin() {
-            let tilesDOM = document.querySelectorAll('.tile:not(.empty)');
-            let correctCount = 0;
-            tilesDOM.forEach(tile => {
-                let currentPos = parseInt(tile.dataset.r) * gridSize + parseInt(tile.dataset.c);
-                let originalPos = parseInt(tile.dataset.original);
-                if(currentPos === originalPos) correctCount++;
-            });
-
-            if (correctCount === (gridSize*gridSize - 1)) {
-                stopTimer();
-                // 3. หน่วงเวลา 0.5 วินาทีก่อนแสดงผล
-                isSolving = true; // ล็อคไม่ให้กดเล่นต่อ
-                setTimeout(() => showWin(false), 500);
-            }
-        }
-
-        function showWin(isCheated) {
-            document.getElementById('resultWord').innerText = currentWordData.word.toUpperCase();
-            document.getElementById('resultThai').innerText = currentWordData.thai;
-            document.getElementById('resultIcon').className = `fa-solid ${currentWordData.icon}`;
-            document.documentElement.style.setProperty('--primary', currentWordData.color);
-
-            let m = Math.floor(seconds / 60);
-            let s = seconds % 60;
-            let timeStr = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('resTime').innerText = timeStr;
-            document.getElementById('resMoves').innerText = moves;
-
-            if(!isCheated) speakWord();
-            overlay.classList.add('show');
-        }
-
-        function speakWord() {
-            let utterance = new SpeechSynthesisUtterance(currentWordData.word);
-            utterance.lang = 'en-US';
-            speechSynthesis.speak(utterance);
-        }
-
-        function nextLevel() {
-            overlay.classList.remove('show');
-            currentStage++;
-            loadLevel();
         }
 
     </script>
