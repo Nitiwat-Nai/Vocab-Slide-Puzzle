@@ -194,7 +194,7 @@
     <!-- 2. MAP SCREEN -->
     <div id="screen-map" class="screen">
         <div class="map-header">
-            <!-- ปุ่มกลับหน้าหลัก (เพิ่มใหม่) -->
+            <!-- ปุ่มกลับหน้าหลัก -->
             <button class="btn-map-back" onclick="switchScreen('menu')">
                 <i class="fa-solid fa-arrow-left"></i>
             </button>
@@ -208,7 +208,6 @@
             </div>
         </div>
         
-        <!-- เก็บปุ่มเดิมไว้ด้านล่างด้วยเผื่อความสะดวก -->
         <div style="padding: 10px 20px 20px 20px; width: 100%; box-sizing: border-box;">
              <button class="btn" style="background: #fab1a0;" onclick="switchScreen('menu')">Back to Menu</button>
         </div>
@@ -266,7 +265,7 @@
     </div>
 
     <script>
-        // --- 1. Database (Expanded for demonstration) ---
+        // --- 1. Database (100 Words) ---
         const rawVocab = [
             {w:"Cat",t:"แมว",i:"fa-cat"}, {w:"Dog",t:"สุนัข",i:"fa-dog"}, {w:"Fish",t:"ปลา",i:"fa-fish"}, {w:"Bird",t:"นก",i:"fa-dove"},
             {w:"Car",t:"รถยนต์",i:"fa-car"}, {w:"Bus",t:"รถบัส",i:"fa-bus"}, {w:"Bike",t:"จักรยาน",i:"fa-bicycle"}, {w:"Plane",t:"เครื่องบิน",i:"fa-plane"},
@@ -279,10 +278,29 @@
             {w:"Music",t:"ดนตรี",i:"fa-music"}, {w:"Game",t:"เกม",i:"fa-gamepad"}, {w:"Lock",t:"แม่กุญแจ",i:"fa-lock"}, {w:"Bell",t:"ระฆัง",i:"fa-bell"},
             {w:"Crow",t:"อีกา",i:"fa-crow"}, {w:"Frog",t:"กบ",i:"fa-frog"}, {w:"Hippo",t:"ฮิปโป",i:"fa-hippo"}, {w:"Dragon",t:"มังกร",i:"fa-dragon"},
             {w:"Spider",t:"แมงมุม",i:"fa-spider"}, {w:"Horse",t:"ม้า",i:"fa-horse"}, {w:"Otter",t:"นาก",i:"fa-otter"}, {w:"Bug",t:"แมลง",i:"fa-bug"},
-            {w:"Rocket",t:"จรวด",i:"fa-rocket"}, {w:"Train",t:"รถไฟ",i:"fa-train"}, {w:"Ship",t:"เรือ",i:"fa-ship"}, {w:"Truck",t:"รถบรรทุก",i:"fa-truck"}
+            {w:"Rocket",t:"จรวด",i:"fa-rocket"}, {w:"Train",t:"รถไฟ",i:"fa-train"}, {w:"Ship",t:"เรือ",i:"fa-ship"}, {w:"Truck",t:"รถบรรทุก",i:"fa-truck"},
+            {w:"Baby",t:"เด็กทารก",i:"fa-baby"}, {w:"Man",t:"ผู้ชาย",i:"fa-person"}, {w:"Woman",t:"ผู้หญิง",i:"fa-person-dress"}, {w:"Hand",t:"มือ",i:"fa-hand"},
+            {w:"Foot",t:"เท้า",i:"fa-shoe-prints"}, {w:"Eye",t:"ตา",i:"fa-eye"}, {w:"Mouth",t:"ปาก",i:"fa-face-smile"}, {w:"Ear",t:"หู",i:"fa-ear-listen"},
+            {w:"Nose",t:"จมูก",i:"fa-face-grin-beam-sweat"}, {w:"Tooth",t:"ฟัน",i:"fa-tooth"}, {w:"Bone",t:"กระดูก",i:"fa-bone"}, {w:"Brain",t:"สมอง",i:"fa-brain"},
+            {w:"Coffee",t:"กาแฟ",i:"fa-mug-hot"}, {w:"Tea",t:"ชา",i:"fa-mug-saucer"}, {w:"Milk",t:"นม",i:"fa-cow"}, {w:"Egg",t:"ไข่",i:"fa-egg"},
+            {w:"Cheese",t:"ชีส",i:"fa-cheese"}, {w:"Bread",t:"ขนมปัง",i:"fa-bread-slice"}, {w:"Cake",t:"เค้ก",i:"fa-cake-candles"}, {w:"Cookie",t:"คุกกี้",i:"fa-cookie"},
+            {w:"Candy",t:"ลูกอม",i:"fa-candy-cane"}, {w:"Lemon",t:"มะนาว",i:"fa-lemon"}, {w:"Carrot",t:"แครอท",i:"fa-carrot"}, {w:"Pepper",t:"พริก",i:"fa-pepper-hot"},
+            {w:"Leaf",t:"ใบไม้",i:"fa-leaf"}, {w:"Flower",t:"ดอกไม้",i:"fa-fan"}, {w:"Mountain",t:"ภูเขา",i:"fa-mountain"}, {w:"Beach",t:"ชายหาด",i:"fa-umbrella-beach"},
+            {w:"Ocean",t:"มหาสมุทร",i:"fa-water"}, {w:"River",t:"แม่น้ำ",i:"fa-water"}, {w:"Rain",t:"ฝน",i:"fa-cloud-rain"}, {w:"Wind",t:"ลม",i:"fa-wind"},
+            {w:"Light",t:"แสงไฟ",i:"fa-lightbulb"}, {w:"Phone",t:"โทรศัพท์",i:"fa-phone"}, {w:"Computer",t:"คอมพิวเตอร์",i:"fa-desktop"}, {w:"TV",t:"ทีวี",i:"fa-tv"},
+            {w:"Radio",t:"วิทยุ",i:"fa-radio"}, {w:"Clock",t:"นาฬิกา",i:"fa-clock"}, {w:"Money",t:"เงิน",i:"fa-coins"}, {w:"Bag",t:"กระเป๋า",i:"fa-bag-shopping"},
+            {w:"Shoe",t:"รองเท้า",i:"fa-shoe-prints"}, {w:"Hat",t:"หมวก",i:"fa-hat-cowboy"}, {w:"Shirt",t:"เสื้อเชิ้ต",i:"fa-shirt"}, {w:"Pants",t:"กางเกง",i:"fa-person"},
+            {w:"Socks",t:"ถุงเท้า",i:"fa-socks"}, {w:"Glasses",t:"แว่นตา",i:"fa-glasses"}, {w:"Ring",t:"แหวน",i:"fa-ring"}, {w:"Crown",t:"มงกุฎ",i:"fa-crown"},
+            {w:"Guitar",t:"กีตาร์",i:"fa-guitar"}, {w:"Drum",t:"กลอง",i:"fa-drum"}, {w:"Piano",t:"เปียโน",i:"fa-music"}, {w:"Microphone",t:"ไมโครโฟน",i:"fa-microphone"}
         ];
         
-        const stageColors = ["#e17055", "#0984e3", "#00b894", "#6c5ce7", "#fdcb6e", "#e84393", "#2d3436", "#00cec9", "#d63031", "#636e72"];
+        // Expanded Color Palette (Pastel/Muted tones)
+        const stageColors = [
+            "#e17055", "#0984e3", "#00b894", "#6c5ce7", "#fdcb6e", 
+            "#e84393", "#2d3436", "#00cec9", "#d63031", "#636e72",
+            "#f39c12", "#9b59b6", "#34495e", "#16a085", "#27ae60",
+            "#2980b9", "#8e44ad", "#2c3e50", "#f1c40f", "#e67e22"
+        ];
 
         // --- 2. State Variables ---
         let currentGridSize = 3; 
@@ -347,17 +365,14 @@
         }
 
         function generateSessionWords() {
-            let pool = [];
-            while(pool.length < 100) {
-                let chunk = [...rawVocab];
-                chunk.sort(() => Math.random() - 0.5);
-                pool = pool.concat(chunk);
-            }
-            pool = pool.slice(0, 100); 
+            let pool = [...rawVocab];
+            pool.sort(() => Math.random() - 0.5); // Shuffle the 100 words
+            pool = pool.slice(0, 100); // Ensure exactly 100
             
             sessionWords = pool.map((item, idx) => {
                 let stageIdx = Math.floor(idx / 10);
-                return { ...item, color: stageColors[stageIdx % stageColors.length] };
+                // Use more colors
+                return { ...item, color: stageColors[idx % stageColors.length] };
             });
         }
 
