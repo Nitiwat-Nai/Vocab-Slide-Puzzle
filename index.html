@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Vocab Slide Puzzle</title>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Kanit:wght@300;500&display=swap" rel="stylesheet">
     
     <style>
@@ -20,182 +18,135 @@
         }
 
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background: var(--bg-grad);
             font-family: 'Fredoka', 'Kanit', sans-serif;
             height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow: hidden;
-            color: white;
-            user-select: none;
+            display: flex; flex-direction: column; align-items: center;
+            overflow: hidden; color: white; user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- 1. Title & Secret Mode Animation --- */
+        /* --- Title & Secret Bot --- */
         .app-title {
-            font-size: 2rem;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            text-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            z-index: 10;
-            cursor: pointer;
-            transition: transform 0.3s;
+            font-size: 2rem; margin-top: 15px; margin-bottom: 5px;
+            text-shadow: 0 4px 6px rgba(0,0,0,0.2); z-index: 10;
+            cursor: pointer; transition: transform 0.3s;
+        }
+        .app-title.active-bot { animation: heartbeat 1.5s infinite ease-in-out; }
+        @keyframes heartbeat { 0%, 30%, 60%, 100% {transform: scale(1);} 15%, 45% {transform: scale(1.1);} }
+        .bot-status {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(255,0,0,0.2); padding: 5px 10px;
+            border-radius: 20px; font-size: 0.7rem; display: none;
         }
 
-        /* เอฟเฟคหัวใจเต้น เมื่อเปิดโหมดลับ */
-        .app-title.active-bot {
-            animation: heartbeat 1.5s infinite ease-in-out;
-        }
-
-        @keyframes heartbeat {
-            0% { transform: scale(1); }
-            15% { transform: scale(1.1); }
-            30% { transform: scale(1); }
-            45% { transform: scale(1.1); }
-            60% { transform: scale(1); }
-            100% { transform: scale(1); }
-        }
-
-        /* --- Screen Logic --- */
+        /* --- Screens --- */
         .screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            animation: fadeIn 0.5s ease;
+            display: none; flex-direction: column; align-items: center;
+            width: 100%; height: 100%; animation: fadeIn 0.5s ease;
+            position: relative;
         }
         .screen.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- Menu --- */
-        .menu-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin-top: 40px;
-            width: 80%;
-            max-width: 300px;
-        }
+        .menu-container { display: flex; flex-direction: column; gap: 20px; margin-top: 40px; width: 80%; max-width: 300px; }
         .menu-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255,255,255,0.4);
-            padding: 20px;
-            border-radius: 15px;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
-            backdrop-filter: blur(5px);
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255,255,255,0.4);
+            padding: 20px; border-radius: 15px; color: white; font-size: 1.2rem;
+            cursor: pointer; backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: space-between;
         }
         .menu-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.02); }
 
+        /* --- Map Screen --- */
+        .map-container {
+            width: 100%; flex: 1; overflow-y: auto;
+            padding: 20px 0; display: flex; flex-direction: column; align-items: center;
+        }
+        .map-path {
+            display: flex; flex-direction: column; align-items: center; gap: 30px; position: relative;
+        }
+        .map-line {
+            position: absolute; top: 20px; bottom: 20px; left: 50%;
+            width: 4px; background: rgba(255,255,255,0.3); transform: translateX(-50%); z-index: 0;
+            border-radius: 2px;
+        }
+        .map-node {
+            width: 60px; height: 60px; border-radius: 50%;
+            background: white; color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; font-weight: bold; z-index: 1;
+            border: 4px solid rgba(255,255,255,0.5); cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.2s;
+        }
+        .map-node:hover { transform: scale(1.1); }
+        .map-node.locked { background: #b2bec3; color: #636e72; cursor: default; }
+        .map-node.active { background: #ffeaa7; color: #d63031; border-color: #fab1a0; transform: scale(1.1); box-shadow: 0 0 15px #ffeaa7; }
+
         /* --- Game Board --- */
-        .top-bar { width: min(90vw, 400px); display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .stats-bar { width: min(90vw, 400px); background: rgba(0,0,0,0.2); padding: 8px 15px; border-radius: 50px; display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.9rem; box-sizing: border-box; }
-        .preview-box { width: 50px; height: 50px; background: rgba(255, 255, 255, 0.9); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 24px; border: 2px solid rgba(255,255,255,0.5); transition: color 0.3s; }
+        .top-bar { width: min(90vw, 400px); display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .stats-bar { width: min(90vw, 400px); background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 50px; display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.8rem; box-sizing: border-box; }
+        .preview-box { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.9); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 20px; border: 2px solid rgba(255,255,255,0.5); }
         
         .game-board {
-            width: var(--board-current-width);
-            height: var(--board-current-width);
-            max-width: var(--board-max-width);
-            max-height: var(--board-max-width);
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 15px;
-            padding: 5px;
-            display: grid;
-            grid-template-columns: repeat(var(--tile-count), 1fr);
-            grid-template-rows: repeat(var(--tile-count), 1fr);
-            gap: var(--gap);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            position: relative;
-            margin: 0 auto;
+            width: var(--board-current-width); height: var(--board-current-width);
+            max-width: var(--board-max-width); max-height: var(--board-max-width);
+            background: rgba(255, 255, 255, 0.15); border-radius: 15px; padding: 5px;
+            display: grid; gap: var(--gap); grid-template-columns: repeat(var(--tile-count), 1fr);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18); position: relative; margin: 0 auto;
         }
-
-        .tile {
-            background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s;
-        }
+        .tile { background: white; border-radius: 6px; cursor: pointer; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; transition: transform 0.1s; }
         .tile.empty { background: transparent; cursor: default; border: 2px dashed rgba(255,255,255,0.2); }
-        
         .tile-content {
-            position: absolute;
-            font-size: calc(min(90vw, 400px) * 0.75);
-            color: var(--primary);
-            width: min(90vw, 400px);
-            height: min(90vw, 400px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            line-height: 1;
-            transition: color 0.3s;
+            position: absolute; font-size: calc(min(90vw, 400px) * 0.75); color: var(--primary);
+            width: min(90vw, 400px); height: min(90vw, 400px); display: flex; align-items: center; justify-content: center;
+            pointer-events: none; line-height: 1; transition: color 0.3s;
         }
 
-        /* --- Large Controls (1.5x) --- */
-        .controls { margin-top: 20px; display: flex; gap: 20px; }
+        .controls { margin-top: 15px; display: flex; gap: 20px; }
         .btn-ctrl {
-            border: none;
-            width: 68px; /* 1.5x size */
-            height: 68px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.65rem;
-            cursor: pointer;
-            box-shadow: 0 6px 10px rgba(0,0,0,0.3);
-            transition: transform 0.1s;
+            border: none; width: 60px; height: 60px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+            cursor: pointer; box-shadow: 0 6px 10px rgba(0,0,0,0.3); transition: transform 0.1s;
         }
         .btn-ctrl:active { transform: scale(0.9); }
         .btn-reset { background: #fdcb6e; color: #d63031; }
         .btn-solve { background: #74b9ff; color: #0984e3; }
-        .btn-home { background: #fab1a0; color: #fff; }
+        .btn-back { background: #fab1a0; color: #fff; }
 
-        /* --- Result Overlay --- */
+        /* --- Overlays --- */
         .overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            z-index: 100; opacity: 0; pointer-events: none;
-            transition: opacity 0.3s;
+            background: rgba(0,0,0,0.9); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 100;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
         .overlay.show { opacity: 1; pointer-events: all; }
-        
         .result-card {
-            background: white; color: #333; padding: 30px;
-            border-radius: 20px; text-align: center; width: 75%; max-width: 320px;
+            background: white; color: #333; padding: 20px; border-radius: 20px;
+            text-align: center; width: 80%; max-width: 320px;
             animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .result-stats { background: #f1f2f6; border-radius: 10px; padding: 10px; margin: 15px 0; font-size: 0.9rem; color: #636e72; }
+        
+        /* --- Stage Summary Table --- */
+        .summary-container {
+            width: 100%; max-height: 50vh; overflow-y: auto;
+            margin: 10px 0; border: 1px solid #eee; border-radius: 10px;
+        }
+        .summary-row {
+            display: flex; justify-content: space-between; padding: 10px;
+            border-bottom: 1px solid #f1f2f6; align-items: center;
+        }
+        .summary-row:last-child { border-bottom: none; }
+        .s-word { font-weight: bold; color: #2d3436; }
+        .s-thai { color: #636e72; font-family: 'Kanit'; }
         
         .btn {
-            background: var(--primary); color: white; border: none;
-            padding: 12px 25px; border-radius: 50px; font-size: 1rem;
-            cursor: pointer; margin-top: 10px; width: 100%;
-            font-family: 'Fredoka', sans-serif;
-        }
-
-        /* --- Bot Indicator (Optional: small text) --- */
-        .bot-status {
-            position: absolute; top: 10px; right: 10px;
-            background: rgba(255,0,0,0.2); padding: 5px 10px;
-            border-radius: 20px; font-size: 0.7rem; 
-            display: none; animation: fadeIn 0.5s;
+            background: var(--primary); color: white; border: none; padding: 10px 20px;
+            border-radius: 50px; font-size: 1rem; cursor: pointer; margin-top: 10px;
+            width: 100%; font-family: 'Fredoka', sans-serif;
         }
 
         @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -203,40 +154,50 @@
 </head>
 <body>
 
-    <!-- 1. Title with Double Tap Handler -->
-    <h1 class="app-title" id="appTitle"><i class="fa-solid fa-puzzle-piece"></i> Vocab Slide Puzzle</h1>
+    <h1 class="app-title" id="appTitle"><i class="fa-solid fa-puzzle-piece"></i> Vocab Slide</h1>
     <div id="botStatus" class="bot-status"><i class="fa-solid fa-robot"></i> AUTO</div>
 
-    <!-- MENU SCREEN -->
+    <!-- 1. MENU SCREEN -->
     <div id="screen-menu" class="screen active">
         <div style="text-align: center; margin-top: 20px; opacity: 0.8;">Select Difficulty</div>
         <div class="menu-container">
-            <button class="menu-btn" onclick="initGameSession(3)">
+            <button class="menu-btn" onclick="openMap(3)">
                 <div>
                     <div style="font-weight: bold;">Easy (3x3)</div>
-                    <small style="opacity: 0.8;">Standard Mode</small>
+                    <small>10 Stages (100 Words)</small>
                 </div>
                 <i class="fa-solid fa-star"></i>
             </button>
-            <button class="menu-btn" onclick="initGameSession(4)">
+            <button class="menu-btn" onclick="openMap(4)">
                 <div>
                     <div style="font-weight: bold;">Hard (4x4)</div>
-                    <small style="opacity: 0.8;">Challenge Mode</small>
+                    <small>10 Stages (100 Words)</small>
                 </div>
                 <i class="fa-solid fa-fire"></i>
             </button>
         </div>
-        <div style="text-align: center; margin-top: auto; margin-bottom: 20px; opacity: 0.5; font-size: 0.8rem;">
-            Double tap title to toggle Secret Bot
+        <div style="margin-top: auto; margin-bottom: 20px; font-size: 0.8rem; opacity: 0.6;">Double tap title for Secret Bot</div>
+    </div>
+
+    <!-- 2. MAP SCREEN -->
+    <div id="screen-map" class="screen">
+        <div style="margin: 10px 0; font-size: 1.2rem; font-weight: bold;">Select Stage</div>
+        <div class="map-container">
+            <div class="map-path" id="mapPath">
+                <!-- Generated by JS -->
+            </div>
+        </div>
+        <div style="padding: 20px; width: 100%; box-sizing: border-box;">
+            <button class="btn" style="background: #fab1a0;" onclick="switchScreen('menu')">Back to Menu</button>
         </div>
     </div>
 
-    <!-- GAME SCREEN -->
+    <!-- 3. GAME SCREEN -->
     <div id="screen-game" class="screen">
         <div class="top-bar">
             <div>
-                <span style="opacity: 0.7; font-size: 0.9rem;">Stage <span id="displayStage">1</span></span>
-                <div style="font-weight: bold;" id="modeName">3x3 Mode</div>
+                <span style="opacity: 0.7; font-size: 0.8rem;">Stage <span id="uiStage">1</span> - Word <span id="uiWordIndex">1</span>/10</span>
+                <div style="font-weight: bold; font-size: 0.9rem;" id="modeName">3x3 Mode</div>
             </div>
             <div class="preview-box">
                 <i id="previewIcon" class="fa-solid fa-question"></i>
@@ -245,454 +206,453 @@
 
         <div class="stats-bar">
             <span><i class="fa-regular fa-clock"></i> <span id="timer">00:00</span></span>
-            <span><i class="fa-solid fa-shoe-prints"></i> <span id="moveCount">0</span> Moves</span>
+            <span><i class="fa-solid fa-shoe-prints"></i> <span id="moveCount">0</span></span>
         </div>
 
-        <div class="game-board" id="board">
-            <!-- Tiles Generated Here -->
-        </div>
+        <div class="game-board" id="board"></div>
 
         <div class="controls">
-            <button class="btn-ctrl btn-home" onclick="goHome()" title="Home"><i class="fa-solid fa-house"></i></button>
-            <button class="btn-ctrl btn-reset" onclick="resetLevel()" title="Reset"><i class="fa-solid fa-rotate-right"></i></button>
+            <button class="btn-ctrl btn-back" onclick="backToMap()" title="Back to Map"><i class="fa-solid fa-map"></i></button>
+            <button class="btn-ctrl btn-reset" onclick="resetCurrentWord()" title="Reset"><i class="fa-solid fa-rotate-right"></i></button>
             <button class="btn-ctrl btn-solve" onclick="triggerSmartSolve()" title="Help"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
         </div>
     </div>
 
-    <!-- RESULT OVERLAY -->
-    <div class="overlay" id="overlay">
+    <!-- 4. WORD CLEARED OVERLAY (Single Word) -->
+    <div class="overlay" id="overlay-word">
         <div class="result-card">
-            <i id="resultIcon" class="fa-solid fa-star" style="font-size: 60px; color: var(--primary);"></i>
-            <h2 id="resultWord" style="margin: 10px 0; color: #2d3436;">WORD</h2>
-            <div id="resultThai" style="font-size: 1.4rem; color: #636e72; font-family: 'Kanit';">คำแปล</div>
-            <div class="result-stats">
-                Time: <span id="resTime">00:00</span> | Moves: <span id="resMoves">0</span>
+            <i id="resIcon" class="fa-solid fa-star" style="font-size: 50px; color: var(--primary);"></i>
+            <h2 id="resWord" style="margin: 10px 0; color: #2d3436;">WORD</h2>
+            <div id="resThai" style="font-size: 1.4rem; color: #636e72; font-family: 'Kanit';">คำแปล</div>
+            <div class="result-stats">Time: <span id="resTime">00:00</span></div>
+            <button class="btn" onclick="nextWord()">Next Word <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <!-- 5. STAGE COMPLETE OVERLAY (10 Words Summary) -->
+    <div class="overlay" id="overlay-summary">
+        <div class="result-card" style="width: 90%; max-width: 400px;">
+            <h2 style="margin: 0 0 10px 0; color: var(--primary);">Stage Complete!</h2>
+            <div style="font-size: 0.9rem; margin-bottom: 10px;">You learned 10 new words</div>
+            
+            <div class="summary-container" id="summaryList">
+                <!-- List items -->
             </div>
-            <button class="btn" style="background:#ffeaa7; color:#d63031;" onclick="speakWord()">
-                <i class="fa-solid fa-volume-high"></i> Listen
-            </button>
-            <button class="btn" onclick="nextLevel()">Next Stage <i class="fa-solid fa-arrow-right"></i></button>
+            
+            <button class="btn" onclick="finishStage()">Back to Map</button>
         </div>
     </div>
 
     <script>
-        // --- 1. Word Database ---
-        const fullDatabase = [
-            { word: "Cat", thai: "แมว", icon: "fa-cat", color: "#e17055" },
-            { word: "Dog", thai: "สุนัข", icon: "fa-dog", color: "#6c5ce7" },
-            { word: "Fish", thai: "ปลา", icon: "fa-fish", color: "#0984e3" },
-            { word: "Bird", thai: "นก", icon: "fa-dove", color: "#00b894" },
-            { word: "Rocket", thai: "จรวด", icon: "fa-rocket", color: "#a29bfe" },
-            { word: "Dragon", thai: "มังกร", icon: "fa-dragon", color: "#d63031" },
-            { word: "Car", thai: "รถยนต์", icon: "fa-car", color: "#ff7675" },
-            { word: "Bicycle", thai: "จักรยาน", icon: "fa-bicycle", color: "#55efc4" },
-            { word: "Tree", thai: "ต้นไม้", icon: "fa-tree", color: "#27ae60" },
-            { word: "Ghost", thai: "ผี", icon: "fa-ghost", color: "#636e72" },
-            { word: "Burger", thai: "เบอร์เกอร์", icon: "fa-burger", color: "#e67e22" },
-            { word: "Pizza", thai: "พิซซ่า", icon: "fa-pizza-slice", color: "#e74c3c" },
-            { word: "Apple", thai: "แอปเปิ้ล", icon: "fa-apple-whole", color: "#e74c3c" },
-            { word: "Camera", thai: "กล้อง", icon: "fa-camera", color: "#6c5ce7" },
-            { word: "Robot", thai: "หุ่นยนต์", icon: "fa-robot", color: "#95a5a6" },
-            { word: "Sun", thai: "พระอาทิตย์", icon: "fa-sun", color: "#f39c12" },
-            { word: "Moon", thai: "พระจันทร์", icon: "fa-moon", color: "#f1c40f" },
-            { word: "Heart", thai: "หัวใจ", icon: "fa-heart", color: "#d63031" },
-            { word: "Umbrella", thai: "ร่ม", icon: "fa-umbrella", color: "#9b59b6" },
-            { word: "Key", thai: "กุญแจ", icon: "fa-key", color: "#f39c12" }
+        // --- 1. Database (Expanded for demonstration) ---
+        // เราจะจำลอง Database ขนาดใหญ่ และใช้ Logic การสุ่มแบบไม่ซ้ำในแต่ละ Session
+        const rawVocab = [
+            {w:"Cat",t:"แมว",i:"fa-cat"}, {w:"Dog",t:"สุนัข",i:"fa-dog"}, {w:"Fish",t:"ปลา",i:"fa-fish"}, {w:"Bird",t:"นก",i:"fa-dove"},
+            {w:"Car",t:"รถยนต์",i:"fa-car"}, {w:"Bus",t:"รถบัส",i:"fa-bus"}, {w:"Bike",t:"จักรยาน",i:"fa-bicycle"}, {w:"Plane",t:"เครื่องบิน",i:"fa-plane"},
+            {w:"Apple",t:"แอปเปิ้ล",i:"fa-apple-whole"}, {w:"Pizza",t:"พิซซ่า",i:"fa-pizza-slice"}, {w:"Burger",t:"เบอร์เกอร์",i:"fa-burger"}, {w:"Ice Cream",t:"ไอศกรีม",i:"fa-ice-cream"},
+            {w:"Home",t:"บ้าน",i:"fa-house"}, {w:"School",t:"โรงเรียน",i:"fa-school"}, {w:"City",t:"เมือง",i:"fa-city"}, {w:"Tree",t:"ต้นไม้",i:"fa-tree"},
+            {w:"Sun",t:"ดวงอาทิตย์",i:"fa-sun"}, {w:"Moon",t:"ดวงจันทร์",i:"fa-moon"}, {w:"Star",t:"ดาว",i:"fa-star"}, {w:"Cloud",t:"เมฆ",i:"fa-cloud"},
+            {w:"Heart",t:"หัวใจ",i:"fa-heart"}, {w:"Ghost",t:"ผี",i:"fa-ghost"}, {w:"Robot",t:"หุ่นยนต์",i:"fa-robot"}, {w:"Camera",t:"กล้อง",i:"fa-camera"},
+            {w:"Book",t:"หนังสือ",i:"fa-book"}, {w:"Pen",t:"ปากกา",i:"fa-pen"}, {w:"Key",t:"กุญแจ",i:"fa-key"}, {w:"Gift",t:"ของขวัญ",i:"fa-gift"},
+            {w:"Fire",t:"ไฟ",i:"fa-fire"}, {w:"Water",t:"น้ำ",i:"fa-water"}, {w:"Snow",t:"หิมะ",i:"fa-snowflake"}, {w:"Bolt",t:"สายฟ้า",i:"fa-bolt"},
+            {w:"Music",t:"ดนตรี",i:"fa-music"}, {w:"Game",t:"เกม",i:"fa-gamepad"}, {w:"Lock",t:"แม่กุญแจ",i:"fa-lock"}, {w:"Bell",t:"ระฆัง",i:"fa-bell"},
+            {w:"Crow",t:"อีกา",i:"fa-crow"}, {w:"Frog",t:"กบ",i:"fa-frog"}, {w:"Hippo",t:"ฮิปโป",i:"fa-hippo"}, {w:"Dragon",t:"มังกร",i:"fa-dragon"},
+            {w:"Spider",t:"แมงมุม",i:"fa-spider"}, {w:"Horse",t:"ม้า",i:"fa-horse"}, {w:"Otter",t:"นาก",i:"fa-otter"}, {w:"Bug",t:"แมลง",i:"fa-bug"},
+            {w:"Rocket",t:"จรวด",i:"fa-rocket"}, {w:"Train",t:"รถไฟ",i:"fa-train"}, {w:"Ship",t:"เรือ",i:"fa-ship"}, {w:"Truck",t:"รถบรรทุก",i:"fa-truck"}
         ];
+        
+        // Color Palette for stages
+        const stageColors = ["#e17055", "#0984e3", "#00b894", "#6c5ce7", "#fdcb6e", "#e84393", "#2d3436", "#00cec9", "#d63031", "#636e72"];
 
-        // --- 2. Core Variables ---
-        let gameWords = [];
-        let currentStage = 0;
-        let gridSize = 3;
-        let emptyPos = { r: 0, c: 0 };
-        let isSolving = false; // Prevents interaction during shuffle/solve
+        // --- 2. State Variables ---
+        let currentGridSize = 3; 
+        let currentStageId = 1; // 1 to 10
+        let currentWordIndex = 0; // 0 to 9 (Word inside stage)
+        
+        let sessionWords = []; // Array of {word, thai, icon, color} - All 100 words (10 stages * 10 words)
+        let stageWords = []; // Current 10 words for this stage
+        let solvedWordsInStage = []; // Store for summary
+
+        // Game State
+        let emptyPos = {r:0, c:0};
+        let isSolving = false; 
         let moves = 0;
         let seconds = 0;
         let timerInterval = null;
-        let currentWordData = {};
-        
-        // ** Stack for Smart Solving **
         let moveHistory = []; 
+        let isAutoPlaying = false; 
 
-        // ** SECRET AUTO BOT VARIABLES **
-        let isAutoPlaying = false; // Bot Status
-
-        // DOM Elements
-        const board = document.getElementById('board');
-        const overlay = document.getElementById('overlay');
-        const previewIcon = document.getElementById('previewIcon');
-        const timeEl = document.getElementById('timer');
-        const movesEl = document.getElementById('moveCount');
+        // DOM
         const titleEl = document.getElementById('appTitle');
-
-        // --- 3. Secret Bot Toggle Logic ---
-        let lastTap = 0;
+        const board = document.getElementById('board');
         
-        // Support both Double Click (PC) and Double Tap (Mobile)
-        titleEl.addEventListener('click', handleTitleTap);
-        titleEl.addEventListener('touchend', (e) => {
-            // e.preventDefault(); // Optional: prevent zoom
-            handleTitleTap(e);
-        });
-
-        function handleTitleTap(e) {
-            const currentTime = new Date().getTime();
-            const tapLength = currentTime - lastTap;
-            
-            // Detect Double Tap (< 500ms)
-            if (tapLength < 500 && tapLength > 0) {
-                toggleSecretBot();
-            }
-            lastTap = currentTime;
+        // --- 3. Secret Bot ---
+        let lastTap = 0;
+        titleEl.addEventListener('click', (e) => handleTap());
+        titleEl.addEventListener('touchend', (e) => handleTap());
+        function handleTap() {
+            let now = new Date().getTime();
+            if(now - lastTap < 500 && now - lastTap > 0) toggleBot();
+            lastTap = now;
         }
-
-        function toggleSecretBot() {
+        function toggleBot() {
             isAutoPlaying = !isAutoPlaying;
-            
-            if (isAutoPlaying) {
-                // Activate
+            if(isAutoPlaying) {
                 titleEl.classList.add('active-bot');
                 document.getElementById('botStatus').style.display = 'block';
-                
-                // If we are already in game and idle, start solving
-                if (document.getElementById('screen-game').classList.contains('active') && !isSolving) {
-                    triggerSmartSolve();
-                }
+                // Trigger action if on screens
+                if(document.getElementById('screen-game').classList.contains('active') && !isSolving) triggerSmartSolve();
+                if(document.getElementById('screen-word').classList.contains('active')) nextWord();
+                if(document.getElementById('overlay-summary').classList.contains('show')) finishStage();
             } else {
-                // Deactivate
                 titleEl.classList.remove('active-bot');
                 document.getElementById('botStatus').style.display = 'none';
             }
         }
 
-        // --- 4. Navigation ---
-        function switchScreen(screenName) {
+        // --- 4. Navigation & Map ---
+        function switchScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(`screen-${screenName}`).classList.add('active');
+            document.getElementById(`screen-${id}`).classList.add('active');
         }
 
-        function goHome() {
-            stopTimer();
-            switchScreen('menu');
+        function openMap(size) {
+            currentGridSize = size;
+            document.getElementById('modeName').innerText = (size===3) ? "3x3 Mode" : "4x4 Mode";
+            document.documentElement.style.setProperty('--tile-count', currentGridSize);
+            
+            // Generate Session Words (100 words unique sequence)
+            generateSessionWords();
+            
+            renderMap();
+            switchScreen('map');
         }
 
-        function initGameSession(size) {
-            gridSize = size;
-            document.documentElement.style.setProperty('--tile-count', gridSize);
-            document.getElementById('modeName').innerText = (size === 3) ? "3x3 Mode" : "4x4 Mode";
-
-            gameWords = [...fullDatabase];
-            shuffleArray(gameWords); 
-
-            currentStage = 0;
-            switchScreen('game');
-            loadLevel();
+        function generateSessionWords() {
+            // Create a massive list by repeating/shuffling rawVocab to get 100 words
+            // In a real app, you'd have 100 unique items in rawVocab
+            let pool = [];
+            while(pool.length < 100) {
+                // Shuffle raw and append
+                let chunk = [...rawVocab];
+                chunk.sort(() => Math.random() - 0.5);
+                pool = pool.concat(chunk);
+            }
+            pool = pool.slice(0, 100); // Trim to exactly 100
+            
+            // Assign colors based on stage
+            sessionWords = pool.map((item, idx) => {
+                let stageIdx = Math.floor(idx / 10);
+                return { ...item, color: stageColors[stageIdx % stageColors.length] };
+            });
         }
 
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+        function renderMap() {
+            const container = document.getElementById('mapPath');
+            container.innerHTML = `<div class="map-line"></div>`; // Connecting line
+            
+            for(let i=1; i<=10; i++) {
+                let node = document.createElement('div');
+                node.className = `map-node ${i > currentStageId ? 'locked' : ''} ${i === currentStageId ? 'active' : ''}`;
+                node.innerText = i;
+                if(i <= currentStageId) {
+                    node.onclick = () => startStage(i);
+                }
+                container.appendChild(node);
+            }
+            
+            // If Auto Bot is on and we are on map, go to current stage automatically
+            if(isAutoPlaying) {
+                setTimeout(() => {
+                    if(document.getElementById('screen-map').classList.contains('active')) {
+                        startStage(currentStageId);
+                    }
+                }, 1000);
             }
         }
 
-        // --- 5. Level Loading & Logic ---
-        function loadLevel() {
+        function backToMap() {
             stopTimer();
-            isSolving = true; 
+            isSolving = false; // reset flag
+            switchScreen('map');
+            renderMap();
+        }
 
-            currentWordData = gameWords[currentStage % gameWords.length];
-            document.getElementById('displayStage').innerText = currentStage + 1;
-            document.documentElement.style.setProperty('--primary', currentWordData.color);
-            previewIcon.className = `fa-solid ${currentWordData.icon}`;
+        // --- 5. Stage Logic ---
+        function startStage(stageId) {
+            currentStageId = stageId;
+            currentWordIndex = 0; // Start at word 1
             
-            moves = 0;
-            seconds = 0;
-            updateStatsUI();
+            // Slice 10 words for this stage
+            let startIdx = (stageId - 1) * 10;
+            stageWords = sessionWords.slice(startIdx, startIdx + 10);
+            solvedWordsInStage = [];
 
-            createBoard(currentWordData.icon); 
-            moveHistory = []; // Reset history for new level
+            switchScreen('game');
+            loadCurrentWord();
+        }
 
-            // Start Sequence: Preview -> Shuffle -> Play/Auto
+        function loadCurrentWord() {
+            stopTimer();
+            isSolving = true; // Lock interaction
+
+            let wordData = stageWords[currentWordIndex];
+            
+            // Update UI
+            document.getElementById('uiStage').innerText = currentStageId;
+            document.getElementById('uiWordIndex').innerText = currentWordIndex + 1;
+            document.documentElement.style.setProperty('--primary', wordData.color);
+            document.getElementById('previewIcon').className = `fa-solid ${wordData.i}`;
+            
+            moves = 0; seconds = 0;
+            document.getElementById('timer').innerText = "00:00";
+            document.getElementById('moveCount').innerText = "0";
+
+            // Create Board
+            createBoard(wordData.i);
+            moveHistory = [];
+
+            // Sequence: Preview -> Shuffle -> Play
             setTimeout(async () => {
-                let shuffleSteps = gridSize === 3 ? 30 : 60;
-                await performSmartShuffle(shuffleSteps);
+                let steps = (currentGridSize === 3) ? 25 : 50;
+                await performSmartShuffle(steps);
                 
                 startTimer();
-                isSolving = false; 
-
-                // *** AUTO BOT TRIGGER ***
-                if (isAutoPlaying) {
-                    // Wait a moment then start solving
-                    setTimeout(triggerSmartSolve, 1000);
-                }
-            }, 1000); // 1s Preview
-        }
-
-        function resetLevel() {
-            if(isSolving) return;
-            loadLevel(); 
-        }
-
-        function createBoard(iconClass) {
-            board.innerHTML = '';
-            let tileCount = gridSize * gridSize;
-            
-            for(let i=0; i<tileCount; i++) {
-                let r = Math.floor(i / gridSize);
-                let c = i % gridSize;
+                isSolving = false; // Unlock
                 
-                if (i === tileCount - 1) {
-                    let div = document.createElement('div');
-                    div.className = 'tile empty';
-                    div.dataset.r = r;
-                    div.dataset.c = c;
-                    board.appendChild(div);
-                    emptyPos = { r, c };
+                if(isAutoPlaying) setTimeout(triggerSmartSolve, 800);
+            }, 1000);
+        }
+
+        function nextWord() {
+            document.getElementById('overlay-word').classList.remove('show');
+            currentWordIndex++;
+            
+            if(currentWordIndex >= 10) {
+                // Stage Complete
+                showStageSummary();
+            } else {
+                loadCurrentWord();
+            }
+        }
+
+        function resetCurrentWord() {
+            if(isSolving) return;
+            loadCurrentWord();
+        }
+
+        // --- 6. Board & Game Logic ---
+        function createBoard(icon) {
+            board.innerHTML = '';
+            let count = currentGridSize * currentGridSize;
+            for(let i=0; i<count; i++) {
+                let r = Math.floor(i/currentGridSize);
+                let c = i%currentGridSize;
+                if(i === count-1) {
+                    let d = document.createElement('div');
+                    d.className = 'tile empty'; d.dataset.r=r; d.dataset.c=c;
+                    board.appendChild(d); emptyPos = {r,c};
                 } else {
-                    let div = createTile(r, c, iconClass, i);
-                    board.appendChild(div);
+                    let d = createTile(r, c, icon, i);
+                    board.appendChild(d);
                 }
             }
         }
 
-        function createTile(row, col, iconClass, originalIndex) {
-            let div = document.createElement('div');
-            div.className = 'tile';
-            div.dataset.r = row;
-            div.dataset.c = col;
-            div.dataset.original = originalIndex;
-            div.onclick = () => { if(!isSolving) handleUserClick(div); };
-
+        function createTile(r, c, icon, idx) {
+            let d = document.createElement('div');
+            d.className = 'tile'; d.dataset.r=r; d.dataset.c=c; d.dataset.orig=idx;
+            d.onclick = () => { if(!isSolving) handleMove(d); };
+            
             let content = document.createElement('div');
             content.className = 'tile-content';
-            content.innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
+            content.innerHTML = `<i class="fa-solid ${icon}"></i>`;
+            let origR = Math.floor(idx/currentGridSize);
+            let origC = idx%currentGridSize;
+            content.style.top = `${origR * -100}%`;
+            content.style.left = `${origC * -100}%`;
+            content.style.width = `${currentGridSize*100}%`;
+            content.style.height = `${currentGridSize*100}%`;
             
-            let originalR = Math.floor(originalIndex / gridSize);
-            let originalC = originalIndex % gridSize;
-            let moveY = originalR * -100; 
-            let moveX = originalC * -100;
-
-            content.style.width = `${gridSize * 100}%`;
-            content.style.height = `${gridSize * 100}%`;
-            content.style.top = `${moveY}%`;
-            content.style.left = `${moveX}%`;
-
-            div.appendChild(content);
-            return div;
+            d.appendChild(content);
+            return d;
         }
 
-        // --- 6. Shuffle Logic (Generates Solvable Puzzle) ---
-        async function performSmartShuffle(steps) {
-            let lastMovedTile = null;
-
-            for(let i=0; i<steps; i++) {
-                let neighbors = getMovableNeighbors();
-                let validNeighbors = neighbors.filter(n => n !== lastMovedTile);
-                if(validNeighbors.length === 0) validNeighbors = neighbors;
-
-                let randomTile = validNeighbors[Math.floor(Math.random() * validNeighbors.length)];
-                
-                swapTileLogic(randomTile); // Record this move to stack
-                lastMovedTile = randomTile;
-                
-                // Fast shuffle visual
-                await new Promise(r => setTimeout(r, 20)); 
-            }
-        }
-
-        function getMovableNeighbors() {
-            let neighbors = [];
-            let { r, c } = emptyPos;
-            const candidates = [{ r: r-1, c: c }, { r: r+1, c: c }, { r: r, c: c-1 }, { r: r, c: c+1 }];
-            candidates.forEach(pos => {
-                if(pos.r >= 0 && pos.r < gridSize && pos.c >= 0 && pos.c < gridSize) {
-                    let tile = document.querySelector(`.tile[data-r='${pos.r}'][data-c='${pos.c}']`);
-                    if(tile) neighbors.push(tile);
-                }
-            });
-            return neighbors;
-        }
-
-        // --- 7. Movement & History Logic ---
-        function handleUserClick(tile) {
+        function handleMove(tile) {
             let r = parseInt(tile.dataset.r);
             let c = parseInt(tile.dataset.c);
             let dr = Math.abs(r - emptyPos.r);
             let dc = Math.abs(c - emptyPos.c);
-
-            if (dr + dc === 1) {
-                swapTileLogic(tile); 
+            
+            if(dr + dc === 1) {
+                swapTile(tile);
                 moves++;
-                updateStatsUI();
+                document.getElementById('moveCount').innerText = moves;
                 checkWin();
             }
         }
 
-        function swapTileLogic(clickedDiv) {
-            let emptyDiv = document.querySelector(`.tile.empty`);
+        function swapTile(tile) {
+            let empty = document.querySelector('.tile.empty');
+            moveHistory.push(tile); // Record for Bot Undo
             
-            // Push to stack for Backtracking/Solving
-            moveHistory.push(clickedDiv);
-
-            swapNodes(clickedDiv, emptyDiv);
-
-            let clickedR = parseInt(clickedDiv.dataset.r);
-            let clickedC = parseInt(clickedDiv.dataset.c);
-            let emptyR = parseInt(emptyDiv.dataset.r);
-            let emptyC = parseInt(emptyDiv.dataset.c);
-
-            clickedDiv.dataset.r = emptyR;
-            clickedDiv.dataset.c = emptyC;
-            emptyDiv.dataset.r = clickedR;
-            emptyDiv.dataset.c = clickedC;
-
-            emptyPos = { r: clickedR, c: clickedC };
+            // Swap DOM
+            let p1 = tile.parentNode, n1 = tile.nextSibling;
+            let p2 = empty.parentNode, n2 = empty.nextSibling;
+            if(n1===empty) p1.insertBefore(empty, tile);
+            else if(n2===tile) p1.insertBefore(tile, empty);
+            else { p1.insertBefore(empty, n1); p2.insertBefore(tile, n2); }
+            
+            // Swap Data
+            let tr=tile.dataset.r, tc=tile.dataset.c;
+            tile.dataset.r = empty.dataset.r; tile.dataset.c = empty.dataset.c;
+            empty.dataset.r = tr; empty.dataset.c = tc;
+            emptyPos = {r:parseInt(tr), c:parseInt(tc)};
         }
 
-        function swapNodes(n1, n2) {
-            let p1 = n1.parentNode;
-            let s1 = n1.nextSibling;
-            let p2 = n2.parentNode;
-            let s2 = n2.nextSibling;
-            if (s1 === n2) p1.insertBefore(n2, n1);
-            else if (s2 === n1) p1.insertBefore(n1, n2);
-            else {
-                p1.insertBefore(n2, s1);
-                p2.insertBefore(n1, s2);
+        async function performSmartShuffle(steps) {
+            let last = null;
+            for(let i=0; i<steps; i++) {
+                let neighbors = getNeighbors();
+                let valid = neighbors.filter(n => n!==last);
+                if(valid.length===0) valid=neighbors;
+                let pick = valid[Math.floor(Math.random()*valid.length)];
+                swapTile(pick); last = pick;
+                await new Promise(r=>setTimeout(r, 10));
             }
         }
 
-        // --- 8. Auto Play (Bot) Logic ---
-        
-        function triggerSmartSolve() {
-            smartSolve();
-        }
-
-        async function smartSolve() {
-            if(isSolving) return;
-            isSolving = true;
-            stopTimer();
-
-            // Reverse Walk logic
-            while(moveHistory.length > 0) {
-                let tileToUndo = moveHistory.pop(); // Get last moved tile
-                
-                // Verify proximity (safety check)
-                let r = parseInt(tileToUndo.dataset.r);
-                let c = parseInt(tileToUndo.dataset.c);
-                let dr = Math.abs(r - emptyPos.r);
-                let dc = Math.abs(c - emptyPos.c);
-
-                if(dr + dc === 1) {
-                    // Visual Swap
-                    let emptyDiv = document.querySelector(`.tile.empty`);
-                    swapNodes(tileToUndo, emptyDiv);
-
-                    // Update Data
-                    let tempR = tileToUndo.dataset.r;
-                    let tempC = tileToUndo.dataset.c;
-                    tileToUndo.dataset.r = emptyDiv.dataset.r;
-                    tileToUndo.dataset.c = emptyDiv.dataset.c;
-                    emptyDiv.dataset.r = tempR;
-                    emptyDiv.dataset.c = tempC;
-                    
-                    emptyPos = { r: parseInt(tempR), c: parseInt(tempC) };
-
-                    // Update UI (Fake user stats)
-                    if (isAutoPlaying) {
-                        moves++;
-                        updateStatsUI();
-                    }
-
-                    // ** Human-like Delay **
-                    // Random delay between 300ms to 600ms
-                    let delay = Math.floor(Math.random() * 300) + 300;
-                    await new Promise(r => setTimeout(r, delay));
+        function getNeighbors() {
+            let arr = [];
+            let {r,c} = emptyPos;
+            [[r-1,c],[r+1,c],[r,c-1],[r,c+1]].forEach(([nr,nc]) => {
+                if(nr>=0 && nr<currentGridSize && nc>=0 && nc<currentGridSize) {
+                    let t = document.querySelector(`.tile[data-r='${nr}'][data-c='${nc}']`);
+                    if(t) arr.push(t);
                 }
-            }
-
-            // Finish
-            setTimeout(() => {
-                showWin(isAutoPlaying); // If auto playing, treat as bot win
-                isSolving = false;
-            }, 500);
+            });
+            return arr;
         }
 
-        // --- 9. Win & Loop Logic ---
         function checkWin() {
-            let tilesDOM = document.querySelectorAll('.tile:not(.empty)');
-            let correctCount = 0;
-            tilesDOM.forEach(tile => {
-                let currentPos = parseInt(tile.dataset.r) * gridSize + parseInt(tile.dataset.c);
-                let originalPos = parseInt(tile.dataset.original);
-                if(currentPos === originalPos) correctCount++;
+            let tiles = document.querySelectorAll('.tile:not(.empty)');
+            let correct = 0;
+            tiles.forEach(t => {
+                let pos = parseInt(t.dataset.r)*currentGridSize + parseInt(t.dataset.c);
+                if(pos == parseInt(t.dataset.orig)) correct++;
             });
-
-            if (correctCount === (gridSize*gridSize - 1)) {
+            
+            if(correct === (currentGridSize*currentGridSize)-1) {
                 stopTimer();
                 isSolving = true;
-                setTimeout(() => showWin(false), 500);
+                setTimeout(showWordWin, 500);
             }
         }
 
-        function showWin(isBotWin) {
-            document.getElementById('resultWord').innerText = currentWordData.word.toUpperCase();
-            document.getElementById('resultThai').innerText = currentWordData.thai;
-            document.getElementById('resultIcon').className = `fa-solid ${currentWordData.icon}`;
-            document.documentElement.style.setProperty('--primary', currentWordData.color);
-
-            let m = Math.floor(seconds / 60);
-            let s = seconds % 60;
-            document.getElementById('resTime').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('resMoves').innerText = moves;
-
-            if(!isBotWin) speakWord();
+        // --- 7. Auto Solve ---
+        async function triggerSmartSolve() {
+            if(isSolving) return;
+            isSolving = true; stopTimer();
             
-            overlay.classList.add('show');
+            while(moveHistory.length > 0) {
+                let tile = moveHistory.pop();
+                let r=parseInt(tile.dataset.r), c=parseInt(tile.dataset.c);
+                let dr=Math.abs(r-emptyPos.r), dc=Math.abs(c-emptyPos.c);
+                
+                if(dr+dc===1) {
+                    // Logic swap without recording to history
+                    let empty = document.querySelector('.tile.empty');
+                    let p1 = tile.parentNode, n1 = tile.nextSibling;
+                    let p2 = empty.parentNode, n2 = empty.nextSibling;
+                    if(n1===empty) p1.insertBefore(empty, tile);
+                    else if(n2===tile) p1.insertBefore(tile, empty);
+                    else { p1.insertBefore(empty, n1); p2.insertBefore(tile, n2); }
+                    
+                    let tr=tile.dataset.r, tc=tile.dataset.c;
+                    tile.dataset.r = empty.dataset.r; tile.dataset.c = empty.dataset.c;
+                    empty.dataset.r = tr; empty.dataset.c = tc;
+                    emptyPos = {r:parseInt(tr), c:parseInt(tc)};
+                    
+                    if(isAutoPlaying) { moves++; document.getElementById('moveCount').innerText=moves; }
+                    
+                    let delay = Math.floor(Math.random()*200) + 200;
+                    await new Promise(r=>setTimeout(r, delay));
+                }
+            }
+            setTimeout(showWordWin, 500);
+        }
 
-            // *** AUTO BOT LOOP ***
-            if (isAutoPlaying) {
-                // Read word (optional for bot)
-                speakWord();
-                // Wait 4 seconds then go next
-                setTimeout(() => {
-                    // Check if bot was turned off during wait
-                    if(isAutoPlaying) nextLevel();
-                }, 4000);
+        // --- 8. Results & Summary ---
+        function showWordWin() {
+            let wd = stageWords[currentWordIndex];
+            solvedWordsInStage.push(wd);
+            
+            document.getElementById('resWord').innerText = wd.w;
+            document.getElementById('resThai').innerText = wd.t;
+            document.getElementById('resIcon').className = `fa-solid ${wd.i}`;
+            document.getElementById('resTime').innerText = document.getElementById('timer').innerText;
+            
+            if(isAutoPlaying) {
+                 speak(wd.w);
+                 // Skip overlay automatically if bot
+                 document.getElementById('overlay-word').classList.add('show');
+                 setTimeout(() => {
+                     if(isAutoPlaying) nextWord();
+                 }, 2000);
+            } else {
+                speak(wd.w);
+                document.getElementById('overlay-word').classList.add('show');
             }
         }
 
-        function speakWord() {
-            let utterance = new SpeechSynthesisUtterance(currentWordData.word);
-            utterance.lang = 'en-US';
-            speechSynthesis.speak(utterance);
+        function showStageSummary() {
+            const list = document.getElementById('summaryList');
+            list.innerHTML = '';
+            solvedWordsInStage.forEach(w => {
+                let row = document.createElement('div');
+                row.className = 'summary-row';
+                row.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid ${w.i}" style="color:${w.color}; width:20px;"></i>
+                        <span class="s-word">${w.w}</span>
+                    </div>
+                    <span class="s-thai">${w.t}</span>
+                `;
+                list.appendChild(row);
+            });
+            
+            document.getElementById('overlay-summary').classList.add('show');
+            
+            // Auto Bot Logic: Wait 3 seconds then go map
+            if(isAutoPlaying) {
+                setTimeout(() => {
+                    if(isAutoPlaying) finishStage();
+                }, 3000);
+            }
         }
 
-        function nextLevel() {
-            overlay.classList.remove('show');
-            currentStage++;
-            loadLevel();
+        function finishStage() {
+            document.getElementById('overlay-summary').classList.remove('show');
+            // Advance Map
+            if(currentStageId < 10) currentStageId++;
+            backToMap();
         }
 
-        // --- Standard UI ---
+        // --- Helpers ---
         function startTimer() {
             stopTimer();
             timerInterval = setInterval(() => {
                 seconds++;
-                updateStatsUI();
+                let m = Math.floor(seconds/60), s = seconds%60;
+                document.getElementById('timer').innerText = `${pad(m)}:${pad(s)}`;
             }, 1000);
         }
-
-        function stopTimer() {
-            if(timerInterval) clearInterval(timerInterval);
-        }
-
-        function updateStatsUI() {
-            let m = Math.floor(seconds / 60);
-            let s = seconds % 60;
-            timeEl.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            movesEl.innerText = moves;
+        function stopTimer() { clearInterval(timerInterval); }
+        function pad(n) { return n<10?'0'+n:n; }
+        function speak(txt) {
+            let u = new SpeechSynthesisUtterance(txt);
+            u.lang = 'en-US';
+            speechSynthesis.speak(u);
         }
 
     </script>
